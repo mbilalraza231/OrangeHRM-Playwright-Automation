@@ -55,11 +55,7 @@ test.describe('Add Employee', () => {
 
   test('add employee form shows required validation for empty fields', async ({ page }) => {
     await page.goto('/web/index.php/pim/addEmployee', { waitUntil: 'domcontentloaded' });
-
-    // ✅ getByRole() — click Save without filling required fields
     await page.getByRole('button', { name: 'Save' }).click();
-
-    // ✅ getByText() — required validation messages
     await expect(page.getByText('Required').first()).toBeVisible();
   });
 

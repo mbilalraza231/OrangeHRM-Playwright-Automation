@@ -51,19 +51,14 @@ test.describe('Edit Employee', () => {
   });
 
   test('admin can navigate to edit employee page from the employee list', async ({ employeePage, page }) => {
-    // ── Navigate to list and find first employee ───────────────────────────
     await employeePage.navigateToList();
     await employeePage.verifyTableLoaded();
 
-    // ✅ Phase 7 — parent/child locator: find row, then edit button within it
-    // The pencil icon (.bi-pencil-fill) is inside an action button in each row
     const firstRow = employeePage.tableRows.first();
     await firstRow.locator('.bi-pencil-fill').click();
 
-    // ✅ URL assertion — navigated to personal details edit page
     await expect(page).toHaveURL(/viewPersonalDetails/);
 
-    // ✅ getByRole() — Personal Details heading confirms correct page
     await expect(page.getByRole('heading', { name: 'Personal Details' })).toBeVisible();
   });
 
