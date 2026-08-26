@@ -54,10 +54,12 @@ export class EmployeePage {
 
   // ── Navigation ────────────────────────────────────────────────────────────
 
-  /** Navigate to the Employee List page. */
+  /** Navigate to the Employee List page and wait for table data to load. */
   async navigateToList(): Promise<void> {
     await this.page.goto('/web/index.php/pim/viewEmployeeList', { waitUntil: 'domcontentloaded' });
     await expect(this.page).toHaveURL(/viewEmployeeList/);
+    // OrangeHRM fetches the employee list via API after DOM loads — wait for it
+    await this.page.waitForLoadState('networkidle');
   }
 
   /** Navigate to the Add Employee page. */
@@ -124,7 +126,7 @@ export class EmployeePage {
 
   /** Assert the employee table is visible with at least one row. */
   async verifyTableLoaded(): Promise<void> {
-    await expect(this.tableBody).toBeVisible();
+    await expect(this.tableBody).toBeVisible({ timeout: 15000 });
     const count = await this.getRowCount();
     expect(count).toBeGreaterThan(0);
   }

@@ -196,19 +196,18 @@ test.describe('End-to-End Business Workflows', () => {
         .first();
 
       await expect(matchingRow).toBeVisible();
-
-      // Assert the row shows the employee's name
       await expect(matchingRow).toContainText(employee.firstName);
       await expect(matchingRow).toContainText(employee.lastName);
 
       // Click the Edit (pencil) button on the right side of the row
       await matchingRow.locator('.bi-pencil-fill').click();
 
-      // Should navigate to Personal Details page
+      // Wait for navigation + spinner to fully finish
       await expect(page).toHaveURL(/viewPersonalDetails/, { timeout: 30000 });
+      await page.waitForLoadState('networkidle');
       await expect(page.getByRole('heading', { name: 'Personal Details' })).toBeVisible();
 
-      // Wait for form to hydrate before editing
+      // Wait for form to hydrate (API loaded employee data into fields)
       await expect(page.getByPlaceholder('First Name'))
         .toHaveValue(employee.firstName, { timeout: 15000 });
 
@@ -222,9 +221,15 @@ test.describe('End-to-End Business Workflows', () => {
       const nameForm = page.locator('form').first();
       await nameForm.getByRole('button', { name: 'Save' }).click();
 
+      // Wait for save to complete (API call + spinner finish)
       await expect(
         page.locator('.oxd-toast--success, .oxd-text--toast-message').first()
       ).toBeVisible({ timeout: 15000 });
+      await page.waitForLoadState('networkidle');
+
+      // ✅ Verify Middle Name right here on the same page after save
+      await expect(page.getByPlaceholder('Middle Name'))
+        .toHaveValue(updatedMiddleName, { timeout: 10000 });
     });
 
 
@@ -248,10 +253,13 @@ test.describe('End-to-End Business Workflows', () => {
 
       // Click Edit to open Personal Details
       await matchingRow.locator('.bi-pencil-fill').click();
+
+      // Wait for navigation + spinner to fully finish before asserting
       await expect(page).toHaveURL(/viewPersonalDetails/, { timeout: 30000 });
+      await page.waitForLoadState('networkidle');
       await expect(page.getByRole('heading', { name: 'Personal Details' })).toBeVisible();
 
-      // Wait for hydration — then assert the updated Middle Name is still there
+      // Assert Middle Name persisted in the database
       await expect(page.getByPlaceholder('First Name')).toHaveValue(employee.firstName, { timeout: 15000 });
       await expect(page.getByPlaceholder('Middle Name')).toHaveValue(updatedMiddleName, { timeout: 15000 });
     });
