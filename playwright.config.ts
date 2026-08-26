@@ -30,6 +30,11 @@ export default defineConfig({
     /* Base URL — all page.goto('/path') calls resolve against this */
     baseURL: 'https://opensource-demo.orangehrmlive.com',
 
+    /* Slow motion for visual debugging if SLOWMO env variable is provided */
+    launchOptions: {
+      slowMo: process.env.SLOWMO ? parseInt(process.env.SLOWMO) : 0,
+    },
+
     /* Timeout for each action like click(), fill() */
     actionTimeout: 20000,
 

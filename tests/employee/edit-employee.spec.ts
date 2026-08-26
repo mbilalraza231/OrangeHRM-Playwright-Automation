@@ -11,7 +11,7 @@ import { generateEmployee } from '../../utils/test-data-generator';
  */
 test.describe('Edit Employee', () => {
 
-  test('admin can edit an employee nickname and save successfully', async ({ employeePage, page }) => {
+  test('admin can edit an employee detail and verify persistence after save', async ({ employeePage, page }) => {
     // ── Step 1: Create a unique employee to edit ───────────────────────────
     const employee = generateEmployee();
     await employeePage.navigateToAdd();
@@ -19,20 +19,30 @@ test.describe('Edit Employee', () => {
 
     // ── Wait for redirect to Personal Details page ─────────────────────────
     await expect(page).toHaveURL(/viewPersonalDetails/, { timeout: 30000 });
+    await expect(page.getByRole('heading', { name: 'Personal Details' })).toBeVisible();
 
-    // ── Step 2: Edit the Nickname field on the Personal Details page ───────
-    // ✅ getByRole() — locate the Nickname input by its label text nearby
-    // OrangeHRM Personal Details has a "Nickname" text input
-    const nicknameInput = page.locator('input.oxd-input').nth(4); // Nickname is typically the 5th input
-    await nicknameInput.clear();
-    await nicknameInput.fill('AutoNick');
+    // ── Step 2: Edit the Middle Name field on Personal Details form ────────
+    const updatedMiddleName = 'EditedMiddle';
+    const middleNameInput = page.getByPlaceholder('Middle Name');
+    await middleNameInput.click();
+    await middleNameInput.fill(updatedMiddleName);
+    await expect(middleNameInput).toHaveValue(updatedMiddleName);
 
-    // ✅ getByRole() — Save button in the Personal Details form
-    await page.getByRole('button', { name: 'Save' }).first().click();
+    // ── Step 3: Save Personal Details section ──────────────────────────────
+    const personalDetailsForm = page.locator('form').first();
+    await personalDetailsForm.getByRole('button', { name: 'Save' }).click();
+    await expect(page.locator('.oxd-toast--success')).toBeVisible({ timeout: 15000 });
 
-    // ✅ assertions — success toast notification
-    // OrangeHRM shows a green success toast after saving
-    await expect(page.locator('.oxd-toast--success')).toBeVisible({ timeout: 10000 });
+    // ── Step 4: Level 3 Business Verification — Reload & assert persistence ─
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Personal Details' })).toBeVisible();
+
+    // Wait for form data hydration by checking first name loaded
+    await expect(page.getByPlaceholder('First Name')).toHaveValue(employee.firstName, { timeout: 15000 });
+    // Verify edited middle name persisted
+    await expect(page.getByPlaceholder('Middle Name')).toHaveValue(updatedMiddleName, { timeout: 15000 });
+
+    console.log(`Verified edited field persisted successfully: ${updatedMiddleName}`);
   });
 
   test('admin can navigate to edit employee page from the employee list', async ({ employeePage, page }) => {

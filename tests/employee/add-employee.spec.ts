@@ -12,31 +12,45 @@ import { generateEmployee } from '../../utils/test-data-generator';
  */
 test.describe('Add Employee', () => {
 
-  test('admin can add a new employee successfully', async ({ employeePage, page }) => {
-    // Generate a unique employee for this test run
+  test('admin can add a new employee successfully and verify record in employee list', async ({ employeePage, page }) => {
+    // 1. Generate unique test data
     const employee = generateEmployee();
 
-    // ✅ Navigate to Add Employee page
+    // 2. Open Add Employee page & assert form loaded
     await employeePage.navigateToAdd();
-
-    // ✅ Verify the Add Employee form is loaded
     await expect(page).toHaveURL(/addEmployee/);
     await expect(page.getByRole('heading', { name: 'Add Employee' })).toBeVisible();
 
-    // ✅ getByPlaceholder() — fill First Name, Last Name via POM
-    // ✅ fill() — type into input fields
-    await employeePage.addEmployee(employee);
+    // 3. Fill fields and assert input values
+    await employeePage.firstNameInput.fill(employee.firstName);
+    await expect(employeePage.firstNameInput).toHaveValue(employee.firstName);
 
-    // ✅ automatic waiting — Playwright waits for the redirect after save
-    // After save, OrangeHRM redirects to the Personal Details page
+    if (employee.middleName) {
+      await employeePage.middleNameInput.fill(employee.middleName);
+      await expect(employeePage.middleNameInput).toHaveValue(employee.middleName);
+    }
+
+    await employeePage.lastNameInput.fill(employee.lastName);
+    await expect(employeePage.lastNameInput).toHaveValue(employee.lastName);
+
+    // 4. Capture and assert Employee ID exists
+    const employeeId = await employeePage.employeeIdInput.inputValue();
+    expect(employeeId.length).toBeGreaterThan(0);
+
+    // 5. Save and assert redirection to Personal Details
+    await employeePage.saveButton.click();
     await expect(page).toHaveURL(/viewPersonalDetails/, { timeout: 30000 });
+    await expect(page.getByRole('heading', { name: 'Personal Details' })).toBeVisible();
 
-    // ✅ getByRole() — verify we're on the personal details page
-    await expect(
-      page.getByRole('heading', { name: 'Personal Details' })
-    ).toBeVisible();
+    // 6. Level 3 Business Verification: Navigate to Employee List and search for created employee
+    await employeePage.navigateToList();
+    await employeePage.searchEmployee(employee.firstName);
 
-    console.log(`Created employee: ${employee.firstName} ${employee.lastName}`);
+    // 7. Assert employee record appears in the search results table
+    const matchingRow = employeePage.tableRows.filter({ hasText: employee.firstName }).first();
+    await expect(matchingRow).toBeVisible();
+
+    console.log(`Verified employee created and found in list: ${employee.firstName} ${employee.lastName} (ID: ${employeeId})`);
   });
 
   test('add employee form shows required validation for empty fields', async ({ page }) => {
