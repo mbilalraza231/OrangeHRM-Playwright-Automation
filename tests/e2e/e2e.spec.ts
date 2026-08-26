@@ -67,28 +67,35 @@ test.describe('End-to-End Business Workflows', () => {
       await employeePage.navigateToAdd();
 
       await expect(page).toHaveURL(/addEmployee/);
-
       await expect(
         page.getByRole('heading', { name: 'Add Employee' })
       ).toBeVisible();
 
-      // Fill employee name
-      await employeePage.addEmployee(employee);
+      // Fill employee name fields
+      await employeePage.firstNameInput.fill(employee.firstName);
+      if (employee.middleName) {
+        await employeePage.middleNameInput.fill(employee.middleName);
+      }
+      await employeePage.lastNameInput.fill(employee.lastName);
 
-      // Verify values before saving is useful, but the important
-      // verification comes after the save.
-      await expect(page.getByPlaceholder('First Name'))
-        .toHaveValue(employee.firstName);
+      // Assert field values BEFORE clicking Save (correct order)
+      await expect(page.getByPlaceholder('First Name')).toHaveValue(employee.firstName);
+      await expect(page.getByPlaceholder('Last Name')).toHaveValue(employee.lastName);
 
-      await expect(page.getByPlaceholder('Last Name'))
-        .toHaveValue(employee.lastName);
+      // Wait for the POST API response in parallel with the Save click
+      const [response] = await Promise.all([
+        page.waitForResponse(
+          (res) => res.url().includes('/pim/employees') && res.request().method() === 'POST',
+          { timeout: 30000 }
+        ),
+        employeePage.saveButton.click(),
+      ]);
 
-      // Save redirects to Personal Details
-      await expect(page).toHaveURL(
-        /viewPersonalDetails/,
-        { timeout: 30000 }
-      );
+      // Confirm server accepted the save (2xx)
+      expect(response.ok()).toBeTruthy();
 
+      // Now assert redirect
+      await expect(page).toHaveURL(/viewPersonalDetails/, { timeout: 30000 });
       await expect(
         page.getByRole('heading', { name: 'Personal Details' })
       ).toBeVisible();
@@ -177,16 +184,20 @@ test.describe('End-to-End Business Workflows', () => {
     // ─────────────────────────────────────────────────────────────
 
     await test.step('7. Edit employee Middle Name', async () => {
-      const middleNameInput = page.getByPlaceholder('Middle Name');
+      // The Middle Name field is in the top "Employee Name" form section.
+      // Wait for the form to hydrate (First Name must have a value) before editing.
+      await expect(page.getByPlaceholder('First Name'))
+        .toHaveValue(employee.firstName, { timeout: 15000 });
 
+      const middleNameInput = page.getByPlaceholder('Middle Name');
+      await middleNameInput.clear();
       await middleNameInput.fill(updatedMiddleName);
       await expect(middleNameInput).toHaveValue(updatedMiddleName);
 
-      const personalDetailsForm = page.locator('form').first();
-
-      await personalDetailsForm
-        .getByRole('button', { name: 'Save' })
-        .click();
+      // The top employee-name form is the FIRST form on the page.
+      // Use its own Save button (not the Personal Details Save below it).
+      const nameForm = page.locator('.orangehrm-edit-employee-name-fields, form').first();
+      await nameForm.getByRole('button', { name: 'Save' }).click();
 
       await expect(
         page.locator('.oxd-toast--success, .oxd-text--toast-message').first()
@@ -217,7 +228,8 @@ test.describe('End-to-End Business Workflows', () => {
       await expect(page).toHaveURL(/viewPersonalDetails/, { timeout: 30000 });
       await expect(page.getByRole('heading', { name: 'Personal Details' })).toBeVisible();
 
-      // Verify edited Middle Name persisted in database
+      // Wait for form hydration then verify Middle Name persisted
+      await expect(page.getByPlaceholder('First Name')).toHaveValue(employee.firstName, { timeout: 15000 });
       await expect(page.getByPlaceholder('Middle Name')).toHaveValue(updatedMiddleName, { timeout: 15000 });
     });
 
