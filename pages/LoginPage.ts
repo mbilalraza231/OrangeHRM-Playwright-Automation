@@ -37,7 +37,7 @@ export class LoginPage {
 
   /** Navigate to the login page. */
   async goto(): Promise<void> {
-    await this.page.goto('/web/index.php/auth/login', { waitUntil: 'domcontentloaded' });
+    await this.page.goto('/web/index.php/auth/login', { waitUntil: 'networkidle', timeout: 60000 });
   }
 
   /**

@@ -27,7 +27,7 @@ export class DashboardPage {
 
   /** Navigate directly to the dashboard (requires authentication). */
   async goto(): Promise<void> {
-    await this.page.goto('/web/index.php/dashboard/index', { waitUntil: 'domcontentloaded' });
+    await this.page.goto('/web/index.php/dashboard/index', { waitUntil: 'networkidle', timeout: 60000 });
   }
 
   /**
