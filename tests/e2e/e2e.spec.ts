@@ -180,23 +180,46 @@ test.describe('End-to-End Business Workflows', () => {
 
 
     // ─────────────────────────────────────────────────────────────
-    // 7. EDIT EMPLOYEE
+    // 7. EDIT EMPLOYEE — Search → Find Row → Click Edit → Edit Middle Name
     // ─────────────────────────────────────────────────────────────
 
-    await test.step('7. Edit employee Middle Name', async () => {
-      // The Middle Name field is in the top "Employee Name" form section.
-      // Wait for the form to hydrate (First Name must have a value) before editing.
+    await test.step('7. Search employee, click Edit, update Middle Name', async () => {
+      // Go to Employee List
+      await employeePage.navigateToList();
+      await employeePage.verifyTableLoaded();
+
+      // Search by first name → see "(1) Record Found" row
+      await employeePage.searchEmployee(employee.firstName);
+
+      const matchingRow = employeePage.tableRows
+        .filter({ hasText: employee.firstName })
+        .first();
+
+      await expect(matchingRow).toBeVisible();
+
+      // Assert the row shows the employee's name
+      await expect(matchingRow).toContainText(employee.firstName);
+      await expect(matchingRow).toContainText(employee.lastName);
+
+      // Click the Edit (pencil) button on the right side of the row
+      await matchingRow.locator('.bi-pencil-fill').click();
+
+      // Should navigate to Personal Details page
+      await expect(page).toHaveURL(/viewPersonalDetails/, { timeout: 30000 });
+      await expect(page.getByRole('heading', { name: 'Personal Details' })).toBeVisible();
+
+      // Wait for form to hydrate before editing
       await expect(page.getByPlaceholder('First Name'))
         .toHaveValue(employee.firstName, { timeout: 15000 });
 
+      // Edit the Middle Name field (top name form section)
       const middleNameInput = page.getByPlaceholder('Middle Name');
       await middleNameInput.clear();
       await middleNameInput.fill(updatedMiddleName);
       await expect(middleNameInput).toHaveValue(updatedMiddleName);
 
-      // The top employee-name form is the FIRST form on the page.
-      // Use its own Save button (not the Personal Details Save below it).
-      const nameForm = page.locator('.orangehrm-edit-employee-name-fields, form').first();
+      // Save using the first form's Save button (employee name section)
+      const nameForm = page.locator('form').first();
       await nameForm.getByRole('button', { name: 'Save' }).click();
 
       await expect(
@@ -206,15 +229,15 @@ test.describe('End-to-End Business Workflows', () => {
 
 
     // ─────────────────────────────────────────────────────────────
-    // 8. VERIFY EDIT PERSISTENCE
+    // 8. VERIFY EDIT PERSISTENCE — Search again → Click Edit → Assert value
     // ─────────────────────────────────────────────────────────────
 
-    await test.step('8. Verify edited employee data persisted', async () => {
-      // Navigate away from the form
+    await test.step('8. Verify Middle Name persisted after navigating away', async () => {
+      // Navigate away to Employee List to prove data was saved to the database
       await employeePage.navigateToList();
       await employeePage.verifyTableLoaded();
 
-      // Search for our unique employee
+      // Search again
       await employeePage.searchEmployee(employee.firstName);
 
       const matchingRow = employeePage.tableRows
@@ -223,12 +246,12 @@ test.describe('End-to-End Business Workflows', () => {
 
       await expect(matchingRow).toBeVisible();
 
-      // Re-open employee from table
+      // Click Edit to open Personal Details
       await matchingRow.locator('.bi-pencil-fill').click();
       await expect(page).toHaveURL(/viewPersonalDetails/, { timeout: 30000 });
       await expect(page.getByRole('heading', { name: 'Personal Details' })).toBeVisible();
 
-      // Wait for form hydration then verify Middle Name persisted
+      // Wait for hydration — then assert the updated Middle Name is still there
       await expect(page.getByPlaceholder('First Name')).toHaveValue(employee.firstName, { timeout: 15000 });
       await expect(page.getByPlaceholder('Middle Name')).toHaveValue(updatedMiddleName, { timeout: 15000 });
     });
