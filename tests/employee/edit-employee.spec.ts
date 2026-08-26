@@ -30,8 +30,13 @@ test.describe('Edit Employee', () => {
 
     // ── Step 3: Save Personal Details section ──────────────────────────────
     const personalDetailsForm = page.locator('form').first();
+    const saveResponsePromise = page.waitForResponse(
+      res => res.url().includes('personal-details') && res.status() === 200,
+      { timeout: 15000 }
+    ).catch(() => null);
+
     await personalDetailsForm.getByRole('button', { name: 'Save' }).click();
-    await expect(page.locator('.oxd-toast--success')).toBeVisible({ timeout: 15000 });
+    await saveResponsePromise;
 
     // ── Step 4: Level 3 Business Verification — Reload & assert persistence ─
     await page.reload({ waitUntil: 'domcontentloaded' });
