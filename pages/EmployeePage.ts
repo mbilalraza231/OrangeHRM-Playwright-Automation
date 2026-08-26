@@ -97,7 +97,21 @@ export class EmployeePage {
       await this.middleNameInput.fill(employee.middleName);
     }
     await this.lastNameInput.fill(employee.lastName);
-    await this.saveButton.click();
+
+    // Click Save and wait for the employee creation API response
+    await Promise.all([
+      this.page.waitForResponse(
+        (res) =>
+          res.url().includes('/pim/employees') &&
+          res.request().method() === 'POST' &&
+          res.status() === 200,
+        { timeout: 30000 }
+      ),
+      this.saveButton.click()
+    ]);
+
+    // Wait for any post‑save navigation / spinner to finish
+    await this.page.waitForLoadState('networkidle');
   }
 
   // ── Table helpers ─────────────────────────────────────────────────────────
