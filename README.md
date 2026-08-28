@@ -1,98 +1,131 @@
-# OrangeHRM Playwright E2E Test Suite
+# OrangeHRM Playwright E2E Automation
 
-A premium, modular Page Object Model (POM) end-to-end (E2E) automation framework built with **Playwright** and **TypeScript** for the OrangeHRM demo application.
+A modular end-to-end test automation framework for the OrangeHRM demo application, built with Playwright and TypeScript.
 
----
-
-## 🏗️ Project Architecture
+The suite covers the main employee workflow:
 
 ```text
-orangehrm-playwright/
-│
-├── fixtures/                   # Custom Test Fixtures
-│   └── test-fixtures.ts        # Extends Playwright test to construct page objects
-│
-├── pages/                      # Page Object Model (POM) layer
-│   ├── LoginPage.ts
-│   ├── DashboardPage.ts
-│   ├── EmployeePage.ts
-│   ├── PersonalDetailsPage.ts
-│   └── LeavePage.ts
-│
-├── test-data/                  # Static & Runtime test state resources
-│   ├── users.json              # Mock users & credentials
-│   ├── employees.json          # Reference search data
-│   └── runtime-state.json      # Dynamic employee data shared between tests (Git ignored)
-│
-├── tests/                      # Test suites
-│   └── e2e/                    # Sequential core user journeys
-│       ├── 01-dashboard.spec.ts
-│       ├── 02-create-employee.spec.ts
-│       ├── 03-personal-details.spec.ts
-│       ├── 04-edit-employee.spec.ts
-│       ├── 05-leave-module.spec.ts
-│       └── 06-logout.spec.ts
-│
-├── tests-setup/
-│   └── auth.setup.ts           # Pre-authenticates once and saves session storageState
-│
-├── utils/                      # Helper scripts
-│   ├── helpers.ts              # Timestamps & Date string helper formatters
-│   └── test-data-generator.ts  # Unique Pakistani employee generator
-│
-├── playwright.config.ts        # Main config (workers: 1, auth setup, test results)
-├── package.json
-└── README.md
+Login -> Dashboard -> Create Employee -> Personal Details -> Edit Employee -> Leave Assignment -> Logout
 ```
 
----
+## Tech Stack
 
-## ⚡ Key Features
+- Playwright
+- TypeScript
+- Page Object Model
+- Custom Playwright fixtures
+- One-time authentication with `storageState`
+- Dynamic test data generation
+- HTML reports, traces, screenshots, and videos on failure
 
-1. **One-Time Authentication State (`storageState`)**: Logs in via `auth.setup.ts` once before the test suite, saving cookies to `playwright/.auth/user.json`. Subsequent E2E tests start pre‑authenticated, saving execution time.
-2. **Page Object Model (POM)**: Isolation of test logic from selectors and page actions.
-3. **Custom Fixtures**: Automatically instantiates and injects page objects (`employeePage`, `personalDetailsPage`, etc.) directly into tests, removing setup boilerplate.
-4. **Collision Prevention**: Generates dynamic timestamp‑based suffixes for employee names (`Bilal126511`) to prevent duplicate entry failures on the shared public demo database.
-5. **No `waitForTimeout` Anti‑patterns**: Purely relies on Playwright auto‑waiting assertions (`expect().toBeVisible()`) for stability.
-6. **Improved Navigation Stability**: Navigation methods use `waitUntil: 'domcontentloaded'` followed by `.waitFor()` on a key page element to ensure the DOM is ready and interactive before taking actions.
+## Project Structure
 
----
+```text
+OrangeHRM/
+|-- fixtures/
+|   `-- test-fixtures.ts          # Custom fixtures for page object injection
+|-- pages/
+|   |-- DashboardPage.ts
+|   |-- EmployeePage.ts
+|   |-- LeavePage.ts
+|   |-- LoginPage.ts
+|   `-- PersonalDetailsPage.ts
+|-- test-data/
+|   |-- employees.json            # Reference employee data
+|   |-- users.json                # Test user credentials
+|   `-- runtime-state.json        # Generated during test execution
+|-- tests/
+|   |-- auth/
+|   |   `-- login.spec.ts         # Standalone login validation
+|   `-- e2e/
+|       |-- 01-dashboard.spec.ts
+|       |-- 02-create-employee.spec.ts
+|       |-- 03-personal-details.spec.ts
+|       |-- 04-edit-employee.spec.ts
+|       |-- 05-leave-module.spec.ts
+|       `-- 06-logout.spec.ts
+|-- tests-setup/
+|   `-- auth.setup.ts             # Creates authenticated storage state
+|-- utils/
+|   |-- helpers.ts
+|   `-- test-data-generator.ts
+|-- playwright.config.ts
+|-- package.json
+|-- tsconfig.json
+`-- README.md
+```
 
-## 🚀 How to Run
+## Test Coverage
 
-### Install Dependencies
+- 11 numbered E2E test cases across 6 modular spec files
+- 1 standalone authentication test
+- Dashboard access validation
+- Employee creation with unique generated data
+- Personal details update
+- Employee search and edit flow
+- Leave list, apply leave, assign leave, and leave verification
+- Logout and session termination
+
+## Key Features
+
+- Page Object Model keeps selectors and page actions reusable.
+- Custom fixtures inject page objects directly into tests.
+- Authentication setup logs in once and reuses `playwright/.auth/user.json`.
+- Dynamic employee data prevents collisions on the public OrangeHRM demo site.
+- Sequential E2E execution supports shared runtime state across dependent flows.
+- No hardcoded waits; tests rely on Playwright locators, assertions, and auto-waiting.
+- Failure artifacts include HTML report, trace, screenshot, and video where configured.
+
+## Prerequisites
+
+- Node.js
+- npm
+
+## Installation
 
 ```powershell
 npm install
 npx playwright install
 ```
 
-### Run All Tests (Headless in background)
+## Running Tests
+
+Run the full suite:
 
 ```powershell
 npx playwright test
 ```
 
-### Run in UI Mode
+Run tests in UI mode:
 
 ```powershell
 npx playwright test --ui
 ```
 
-### Run in Headed Mode (With slow-motion)
+Run the E2E flow in headed mode:
+
+```powershell
+npx playwright test tests/e2e --headed
+```
+
+Run with slow motion:
 
 ```powershell
 $env:SLOWMO="500"; npx playwright test tests/e2e --headed
 ```
 
-### View Test Report
+View the HTML report:
 
 ```powershell
 npx playwright show-report
 ```
 
----
+## Test Data
 
-## 📖 Architecture & Design Study Guide
-For a deep dive into the framework's design patterns, dependency graph, execution matrix, and senior SDET review, please check:
-👉 [**`playwright_architecture_guide.txt`**](./playwright_architecture_guide.txt)
+Default OrangeHRM demo credentials are stored in `test-data/users.json`.
+
+Generated runtime data is written to `test-data/runtime-state.json` during execution. This file is ignored by Git because it is environment-specific test state.
+
+## Notes
+
+The OrangeHRM demo site is a shared public environment, so test results can occasionally be affected by server speed, resets, or data created by other users. The framework uses unique generated employee data and Playwright auto-waiting to reduce flakiness.
