@@ -58,13 +58,15 @@ export class EmployeePage {
   async navigateToList(): Promise<void> {
     await this.page.goto('/web/index.php/pim/viewEmployeeList', { waitUntil: 'domcontentloaded' });
     await expect(this.page).toHaveURL(/viewEmployeeList/);
-    // OrangeHRM fetches the employee list via API after DOM loads — wait for it
-    await this.page.waitForLoadState('networkidle');
+    // Wait for the table body — confirms the API-fetched data has rendered
+    await this.tableBody.waitFor({ state: 'visible', timeout: 15000 });
   }
 
   /** Navigate to the Add Employee page. */
   async navigateToAdd(): Promise<void> {
     await this.page.goto('/web/index.php/pim/addEmployee', { waitUntil: 'domcontentloaded' });
+    // Wait for the form to be interactive, not just the HTML shell
+    await this.firstNameInput.waitFor({ state: 'visible', timeout: 15000 });
   }
 
   // ── Search ────────────────────────────────────────────────────────────────

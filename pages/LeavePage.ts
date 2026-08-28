@@ -48,18 +48,24 @@ export class LeavePage {
   async navigateToList(): Promise<void> {
     await this.page.goto('/web/index.php/leave/viewLeaveList', { waitUntil: 'domcontentloaded' });
     await expect(this.page).toHaveURL(/viewLeaveList/);
+    // Wait for the search form heading — confirms the page has fully rendered
+    await this.leaveListHeading.waitFor({ state: 'visible', timeout: 15000 });
   }
 
   /** Navigate to the Apply Leave page. */
   async navigateToApply(): Promise<void> {
     await this.page.goto('/web/index.php/leave/applyLeave', { waitUntil: 'domcontentloaded' });
     await expect(this.page).toHaveURL(/applyLeave/);
+    // Wait for the form to be interactive
+    await this.fromDateInput.waitFor({ state: 'visible', timeout: 15000 });
   }
 
   /** Navigate to the Assign Leave page. */
   async navigateToAssign(): Promise<void> {
     await this.page.goto('/web/index.php/leave/assignLeave', { waitUntil: 'domcontentloaded' });
     await expect(this.page).toHaveURL(/assignLeave/);
+    // Wait for the employee name autocomplete input — confirms form is interactive
+    await this.employeeNameInput.waitFor({ state: 'visible', timeout: 15000 });
   }
 
   // ── Actions ───────────────────────────────────────────────────────────────

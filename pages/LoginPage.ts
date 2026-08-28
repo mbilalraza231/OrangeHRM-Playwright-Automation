@@ -37,7 +37,9 @@ export class LoginPage {
 
   /** Navigate to the login page. */
   async goto(): Promise<void> {
-    await this.page.goto('/web/index.php/auth/login', { waitUntil: 'networkidle', timeout: 60000 });
+    await this.page.goto('/web/index.php/auth/login', { waitUntil: 'domcontentloaded' });
+    // Wait for the login heading — confirms the form is fully rendered
+    await this.loginHeading.waitFor({ state: 'visible', timeout: 15000 });
   }
 
   /**
