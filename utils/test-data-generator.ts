@@ -21,7 +21,7 @@ export function generateEmployee(): EmployeeData {
   const middleNames = ['Ali', 'Raza', 'Hassan', 'Iqbal'];
   const lastNames   = ['Khan', 'Ahmed', 'Siddiqui', 'Shah', 'Malik', 'Butt'];
 
-  const randSelect = <T>(arr: T[]): T => arr[randomInt(arr.length)];
+  const randSelect = <T>(arr: T[]): T => arr[randomInt(arr.length)]; // NOSONAR: Non-security test data variation.
 
   return {
     firstName:           `${randSelect(firstNames)}${suffix}`,
