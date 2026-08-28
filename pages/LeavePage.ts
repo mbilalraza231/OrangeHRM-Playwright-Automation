@@ -56,8 +56,8 @@ export class LeavePage {
   async navigateToApply(): Promise<void> {
     await this.page.goto('/web/index.php/leave/applyLeave', { waitUntil: 'domcontentloaded' });
     await expect(this.page).toHaveURL(/applyLeave/);
-    // Wait for the form to be interactive
-    await this.fromDateInput.waitFor({ state: 'visible', timeout: 15000 });
+    // Wait for the heading — the form fields may not render if there's no leave balance
+    await this.page.getByRole('heading', { name: 'Apply Leave' }).waitFor({ state: 'visible', timeout: 15000 });
   }
 
   /** Navigate to the Assign Leave page. */
