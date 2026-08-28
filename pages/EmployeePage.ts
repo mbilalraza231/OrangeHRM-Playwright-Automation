@@ -27,7 +27,7 @@ export class EmployeePage {
   async navigateToList(): Promise<void> {
     await this.page.goto('/web/index.php/pim/viewEmployeeList', { waitUntil: 'domcontentloaded' });
     await expect(this.page).toHaveURL(/viewEmployeeList/);
-    await this.tableBody.waitFor({ state: 'visible', timeout: 15000 });
+    await this.searchButton.waitFor({ state: 'visible' });
   }
 
   async navigateToAdd(): Promise<void> {
