@@ -44,25 +44,25 @@ test.describe.serial('Leave Module', () => {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Test 8 — Verify Leave List page loads
+  // Test 7 — Verify Leave List page loads
   // ─────────────────────────────────────────────────────────────────────────
-  test('8. Verify Leave List page loads correctly', async () => {
+  test('7. Verify Leave List page loads correctly', async () => {
     await leavePage.navigateToList();
     await leavePage.verifyLeaveListLoaded();
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Test 9 — Verify Apply Leave form loads
+  // Test 8 — Verify Apply Leave form loads
   // ─────────────────────────────────────────────────────────────────────────
-  test('9. Verify Apply Leave form loads correctly', async () => {
+  test('8. Verify Apply Leave form loads correctly', async () => {
     await leavePage.navigateToApply();
     await leavePage.verifyApplyLeaveFormLoaded();
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Test 10 — Assign Leave to the employee
+  // Test 9 — Assign Leave to the employee
   // ─────────────────────────────────────────────────────────────────────────
-  test('10. Assign leave to the newly created employee', async () => {
+  test('9. Assign leave to the newly created employee', async () => {
     await leavePage.navigateToAssign();
 
     // Use firstName for the typeahead — it's unique (has numeric suffix) and
@@ -81,9 +81,9 @@ test.describe.serial('Leave Module', () => {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Test 11 — Verify assigned leave is in the Leave List
+  // Test 10 — Verify assigned leave is in the Leave List
   // ─────────────────────────────────────────────────────────────────────────
-  test('11. Verify assigned leave is present in the Leave List', async () => {
+  test('10. Verify assigned leave is present in the Leave List', async () => {
     await leavePage.navigateToList();
 
     await leavePage.searchLeaveList(employee.firstName, fromDate, toDate);

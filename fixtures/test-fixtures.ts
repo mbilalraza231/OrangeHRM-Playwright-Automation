@@ -3,6 +3,7 @@ import { LoginPage }     from '../pages/LoginPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { EmployeePage }  from '../pages/EmployeePage';
 import { LeavePage }     from '../pages/LeavePage';
+import { PersonalDetailsPage } from '../pages/PersonalDetailsPage';
 
 /**
  * Custom fixture types.
@@ -14,10 +15,11 @@ import { LeavePage }     from '../pages/LeavePage';
  *   test('...', async ({ employeePage }) => { ... })
  */
 type Fixtures = {
-  loginPage:     LoginPage;
-  dashboardPage: DashboardPage;
-  employeePage:  EmployeePage;
-  leavePage:     LeavePage;
+  loginPage:           LoginPage;
+  dashboardPage:       DashboardPage;
+  employeePage:        EmployeePage;
+  leavePage:           LeavePage;
+  personalDetailsPage: PersonalDetailsPage;
 };
 
 export const test = base.extend<Fixtures>({
@@ -35,6 +37,10 @@ export const test = base.extend<Fixtures>({
 
   leavePage: async ({ page }, use) => {
     await use(new LeavePage(page));
+  },
+
+  personalDetailsPage: async ({ page }, use) => {
+    await use(new PersonalDetailsPage(page));
   },
 });
 

@@ -14,7 +14,7 @@ import { LoginPage }     from '../../pages/LoginPage';
 
 test.use({ storageState: 'playwright/.auth/user.json' });
 
-test('12. Logout and verify session is fully terminated', async ({ page }) => {
+test('11. Logout and verify session is fully terminated', async ({ page }) => {
   const dashboardPage = new DashboardPage(page);
   const loginPage     = new LoginPage(page);
 

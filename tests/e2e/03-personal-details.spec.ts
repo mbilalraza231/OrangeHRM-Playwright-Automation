@@ -1,6 +1,4 @@
-import { test, expect } from '@playwright/test';
-import type { Page, BrowserContext } from '@playwright/test';
-import { EmployeePage } from '../../pages/EmployeePage';
+import { test, expect } from '../../fixtures/test-fixtures';
 import type { EmployeeData } from '../../utils/test-data-generator';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -8,12 +6,12 @@ import * as path from 'path';
 /**
  * 03-personal-details.spec.ts
  *
- * Fills the Personal Details form (Nationality, Marital Status, Gender)
- * for the employee created in 02-create-employee.spec.ts, then saves.
+ * Fills and saves the Personal Details form (Nationality, Marital Status, Gender)
+ * for the employee created in 02-create-employee.spec.ts.
  *
  * Reads employee data from test-data/runtime-state.json.
  * Navigates to the employee via the Employee List search → Edit flow.
- * Uses a shared page so test 4 (fill) and test 5 (save) share the form.
+ * Uses PersonalDetailsPage POM for interaction.
  */
 
 const STATE_FILE = path.join(__dirname, '../../test-data/runtime-state.json');
@@ -21,93 +19,41 @@ const STATE_FILE = path.join(__dirname, '../../test-data/runtime-state.json');
 const nationality   = 'Pakistani';
 const maritalStatus = 'Single';
 
-let page:         Page;
-let context:      BrowserContext;
-let employeePage: EmployeePage;
-let employee:     EmployeeData;
+test.use({ storageState: 'playwright/.auth/user.json' });
 
-test.describe.serial('Personal Details', () => {
+test('4. Fill and save Personal Details, then verify success toast', async ({ employeePage, personalDetailsPage }) => {
+  const state = JSON.parse(fs.readFileSync(STATE_FILE, 'utf-8'));
+  const employee = state.employee;
 
-  test.beforeAll(async ({ browser }) => {
-    const state = JSON.parse(fs.readFileSync(STATE_FILE, 'utf-8'));
-    employee = state.employee;
+  // 1. Navigate to the employee's Personal Details via the List → Edit flow
+  await employeePage.navigateToList();
+  await employeePage.verifyTableLoaded();
+  await employeePage.searchEmployee(employee.firstName);
 
-    context      = await browser.newContext({ storageState: 'playwright/.auth/user.json' });
-    page         = await context.newPage();
-    employeePage = new EmployeePage(page);
+  const matchingRow = employeePage.tableRows
+    .filter({ hasText: employee.firstName })
+    .first();
 
-    // Navigate to the employee's Personal Details via the List → Edit flow
-    await employeePage.navigateToList();
-    await employeePage.verifyTableLoaded();
-    await employeePage.searchEmployee(employee.firstName);
+  await expect(matchingRow).toBeVisible();
+  await matchingRow.locator('.bi-pencil-fill').click();
 
-    const matchingRow = employeePage.tableRows
-      .filter({ hasText: employee.firstName })
-      .first();
+  // Redirect to Personal Details after clicking Edit
+  await expect(personalDetailsPage.page).toHaveURL(/viewPersonalDetails/, { timeout: 30000 });
+  await expect(personalDetailsPage.heading).toBeVisible();
 
-    await expect(matchingRow).toBeVisible();
-    await matchingRow.locator('.bi-pencil-fill').click();
+  // 2. Wait for the form to be hydrated with employee data before filling
+  await expect(personalDetailsPage.firstNameInput)
+    .toHaveValue(employee.firstName, { timeout: 15000 });
 
-    await expect(page).toHaveURL(/viewPersonalDetails/, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
-    await expect(page.getByRole('heading', { name: 'Personal Details' })).toBeVisible();
+  // 3. Fill Nationality, Marital Status and Gender dropdowns using POM
+  await personalDetailsPage.selectNationality(nationality);
+  await personalDetailsPage.selectMaritalStatus(maritalStatus);
+  await personalDetailsPage.selectGender('Male');
 
-    // Wait for the form to be hydrated with employee data
-    await expect(page.getByPlaceholder('First Name'))
-      .toHaveValue(employee.firstName, { timeout: 15000 });
-  });
+  // Verify dropdown selections in UI before save
+  await expect(personalDetailsPage.nationalityDropdown).toContainText(nationality);
+  await expect(personalDetailsPage.maritalStatusDropdown).toContainText(maritalStatus);
 
-  test.afterAll(async () => {
-    await context.close();
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Test 4 — Fill Nationality, Marital Status, Gender dropdowns
-  // ─────────────────────────────────────────────────────────────────────────
-  test('4. Fill Nationality, Marital Status and Gender in Personal Details', async () => {
-    // Nationality custom dropdown
-    const nationalityDropdown = page
-      .locator('.oxd-input-group', { hasText: 'Nationality' })
-      .locator('.oxd-select-wrapper');
-
-    await nationalityDropdown.click();
-    await page.locator('.oxd-select-dropdown')
-      .getByText(nationality, { exact: true })
-      .click();
-
-    // Marital Status custom dropdown
-    const maritalStatusDropdown = page
-      .locator('.oxd-input-group', { hasText: 'Marital Status' })
-      .locator('.oxd-select-wrapper');
-
-    await maritalStatusDropdown.click();
-    await page.locator('.oxd-select-dropdown')
-      .getByText(maritalStatus, { exact: true })
-      .click();
-
-    // Gender radio — anchored regex prevents matching "Female"
-    const maleRadioWrapper = page.locator('.oxd-radio-wrapper', { hasText: /^Male$/ });
-    await maleRadioWrapper.click();
-
-    // Assertions
-    await expect(nationalityDropdown).toContainText(nationality);
-    await expect(maritalStatusDropdown).toContainText(maritalStatus);
-    await expect(maleRadioWrapper.locator('input')).toBeChecked();
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Test 5 — Save the Personal Details form and verify success toast
-  // ─────────────────────────────────────────────────────────────────────────
-  test('5. Save Personal Details and verify success toast', async () => {
-    const personalDetailsForm = page.locator('form').first();
-
-    await personalDetailsForm
-      .getByRole('button', { name: 'Save' })
-      .click();
-
-    await expect(
-      page.locator('.oxd-toast--success, .oxd-text--toast-message').first()
-    ).toBeVisible({ timeout: 15000 });
-  });
-
+  // 4. Save and verify toast
+  await personalDetailsPage.saveForm();
 });
