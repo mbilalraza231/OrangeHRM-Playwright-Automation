@@ -25,11 +25,18 @@ export interface EmployeeData {
 export function generateEmployee(): EmployeeData {
   const suffix = uniqueSuffix();
 
+  const firstNames = ['Ahmad', 'Basit', 'Faisal', 'Zain', 'Hamza', 'Usman', 'Bilal'];
+  const middleNames = ['Ali', 'Raza', 'Hassan', 'Iqbal'];
+  const lastNames = ['Khan', 'Ahmed', 'Siddiqui', 'Shah', 'Malik', 'Butt'];
+
+  const randSelect = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+  // We append the unique suffix to the names to ensure zero collisions in shared demo environments
   return {
     // Basic employee information
-    firstName: `Test${suffix}`,
-    middleName: `Middle${suffix}`,
-    lastName: `Auto${suffix}`,
+    firstName: `${randSelect(firstNames)}${suffix}`,
+    middleName: `${randSelect(middleNames)}${suffix}`,
+    lastName: `${randSelect(lastNames)}${suffix}`,
 
     // Personal Details
     nationality: 'Pakistani',
