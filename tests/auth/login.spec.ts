@@ -6,11 +6,16 @@ import users from '../../test-data/users.json';
 // the page would already be authenticated — the Login heading would never appear.
 test.use({ storageState: { cookies: [], origins: [] } });
 
-test('admin can log in and save storageState', async ({ loginPage, dashboardPage, page }, testInfo) => {
+test('admin can log in and save storageState', async ({ loginPage, dashboardPage, page }) => {
   await loginPage.goto();
   await loginPage.verifyPageLoaded();
   await loginPage.login(users.admin.username, users.admin.password);
   await expect(page).toHaveURL(/dashboard/);
   await dashboardPage.verifyDashboard();
-  await testInfo.storageState({ path: 'authState.json' });
+
+  // Save the authenticated browser context state to a file.
+  // (The main auth for the test suite lives in playwright/.auth/user.json
+  //  written by auth.setup.ts — this is a secondary save for manual reference.)
+  await page.context().storageState({ path: 'authState.json' });
 });
+
