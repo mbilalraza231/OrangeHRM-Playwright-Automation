@@ -21,7 +21,7 @@ export class LoginPage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/web/index.php/auth/login', { waitUntil: 'commit' });
+    await this.page.goto('/web/index.php/auth/login', { waitUntil: 'domcontentloaded' });
     await expect(this.loginHeading).toBeVisible();
   }
 

@@ -25,12 +25,12 @@ export class EmployeePage {
   }
 
   async navigateToList(): Promise<void> {
-    await this.page.goto('/web/index.php/pim/viewEmployeeList', { waitUntil: 'commit' });
+    await this.page.goto('/web/index.php/pim/viewEmployeeList', { waitUntil: 'domcontentloaded' });
     await expect(this.searchButton).toBeVisible();
   }
 
   async navigateToAdd(): Promise<void> {
-    await this.page.goto('/web/index.php/pim/addEmployee', { waitUntil: 'commit' });
+    await this.page.goto('/web/index.php/pim/addEmployee', { waitUntil: 'domcontentloaded' });
     await expect(this.firstNameInput).toBeVisible();
   }
 

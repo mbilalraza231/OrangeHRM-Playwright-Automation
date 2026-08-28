@@ -27,17 +27,17 @@ export class LeavePage {
   }
 
   async navigateToList(): Promise<void> {
-    await this.page.goto('/web/index.php/leave/viewLeaveList', { waitUntil: 'commit' });
+    await this.page.goto('/web/index.php/leave/viewLeaveList', { waitUntil: 'domcontentloaded' });
     await expect(this.leaveListHeading).toBeVisible();
   }
 
   async navigateToApply(): Promise<void> {
-    await this.page.goto('/web/index.php/leave/applyLeave', { waitUntil: 'commit' });
+    await this.page.goto('/web/index.php/leave/applyLeave', { waitUntil: 'domcontentloaded' });
     await expect(this.page.getByRole('heading', { name: 'Apply Leave' })).toBeVisible();
   }
 
   async navigateToAssign(): Promise<void> {
-    await this.page.goto('/web/index.php/leave/assignLeave', { waitUntil: 'commit' });
+    await this.page.goto('/web/index.php/leave/assignLeave', { waitUntil: 'domcontentloaded' });
     await expect(this.employeeNameInput).toBeVisible();
   }
 

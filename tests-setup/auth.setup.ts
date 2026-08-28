@@ -10,7 +10,7 @@ const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 
 setup('authenticate as admin', async ({ page }) => {
   await page.context().clearCookies();
-  await page.goto('/web/index.php/auth/login', { waitUntil: 'commit' });
+  await page.goto('/web/index.php/auth/login', { waitUntil: 'domcontentloaded' });
   await expect(page.getByPlaceholder('Username')).toBeVisible();
   await page.getByPlaceholder('Username').fill('Admin');
   await page.getByPlaceholder('Password').fill('admin123');
