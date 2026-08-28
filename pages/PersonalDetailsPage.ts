@@ -6,7 +6,6 @@ export class PersonalDetailsPage {
   readonly heading: Locator;
   readonly firstNameInput: Locator;
   readonly middleNameInput: Locator;
-  readonly lastNameInput: Locator;
   readonly saveButton: Locator;
   readonly nationalityDropdown: Locator;
   readonly maritalStatusDropdown: Locator;
@@ -16,7 +15,6 @@ export class PersonalDetailsPage {
     this.heading             = page.getByRole('heading', { name: 'Personal Details' });
     this.firstNameInput      = page.getByPlaceholder('First Name');
     this.middleNameInput     = page.getByPlaceholder('Middle Name');
-    this.lastNameInput       = page.getByPlaceholder('Last Name');
     this.saveButton          = page.locator('form').first().getByRole('button', { name: 'Save' });
     this.nationalityDropdown = page.locator('.oxd-input-group', { hasText: 'Nationality' }).locator('.oxd-select-text');
     this.maritalStatusDropdown = page.locator('.oxd-input-group', { hasText: 'Marital Status' }).locator('.oxd-select-text');

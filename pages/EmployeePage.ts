@@ -1,46 +1,27 @@
 import { Page, Locator, expect } from '@playwright/test';
-import { EmployeeData } from '../utils/test-data-generator';
 
 /** EmployeePage — Page Object for the OrangeHRM PIM (Employee Management) module. */
 export class EmployeePage {
   readonly page: Page;
-  readonly addButton: Locator;
-  readonly searchButton: Locator;
-  readonly resetButton: Locator;
   readonly saveButton: Locator;
+  readonly searchButton: Locator;
   readonly firstNameInput: Locator;
   readonly middleNameInput: Locator;
   readonly lastNameInput: Locator;
   readonly employeeNameSearchInput: Locator;
   readonly tableBody: Locator;
   readonly tableRows: Locator;
-  readonly successToast: Locator;
-  readonly noRecordsMessage: Locator;
-  readonly cancelButton: Locator;
-  readonly employeeIdInput: Locator;
-  readonly createLoginDetailsSwitch: Locator;
-  readonly imageHintText: Locator;
-  readonly requiredFooter: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.addButton                = page.getByRole('button', { name: 'Add' });
-    this.searchButton             = page.getByRole('button', { name: 'Search' });
-    this.resetButton              = page.getByRole('button', { name: 'Reset' });
-    this.saveButton               = page.getByRole('button', { name: 'Save' });
-    this.cancelButton             = page.getByRole('button', { name: 'Cancel' });
-    this.firstNameInput           = page.getByPlaceholder('First Name');
-    this.middleNameInput          = page.getByPlaceholder('Middle Name');
-    this.lastNameInput            = page.getByPlaceholder('Last Name');
-    this.employeeNameSearchInput  = page.locator('.oxd-input-group', { hasText: 'Employee Name' }).getByPlaceholder('Type for hints...');
-    this.employeeIdInput          = page.locator('.oxd-input-group', { hasText: 'Employee Id' }).locator('input');
-    this.createLoginDetailsSwitch = page.locator('.oxd-switch-input');
-    this.imageHintText            = page.getByText(/Accepts jpg/i);
-    this.requiredFooter           = page.getByText(/Required/i).first();
-    this.tableBody                = page.locator('.oxd-table-body');
-    this.tableRows                = page.locator('.oxd-table-body .oxd-table-row');
-    this.successToast             = page.locator('.oxd-toast--success');
-    this.noRecordsMessage         = page.getByText('No Records Found').first();
+    this.saveButton              = page.getByRole('button', { name: 'Save' });
+    this.searchButton            = page.getByRole('button', { name: 'Search' });
+    this.firstNameInput          = page.getByPlaceholder('First Name');
+    this.middleNameInput         = page.getByPlaceholder('Middle Name');
+    this.lastNameInput           = page.getByPlaceholder('Last Name');
+    this.employeeNameSearchInput = page.locator('.oxd-input-group', { hasText: 'Employee Name' }).getByPlaceholder('Type for hints...');
+    this.tableBody               = page.locator('.oxd-table-body');
+    this.tableRows               = page.locator('.oxd-table-body .oxd-table-row');
   }
 
   async navigateToList(): Promise<void> {
@@ -59,51 +40,8 @@ export class EmployeePage {
     await this.searchButton.click();
   }
 
-  async resetSearch(): Promise<void> {
-    await this.resetButton.click();
-  }
-
-  async addEmployee(employee: EmployeeData): Promise<void> {
-    await this.firstNameInput.fill(employee.firstName);
-    if (employee.middleName) {
-      await this.middleNameInput.fill(employee.middleName);
-    }
-    await this.lastNameInput.fill(employee.lastName);
-
-    await Promise.all([
-      this.page.waitForResponse(
-        (res) =>
-          res.url().includes('/pim/employees') &&
-          res.request().method() === 'POST' &&
-          res.status() === 200,
-        { timeout: 30000 }
-      ),
-      this.saveButton.click()
-    ]);
-
-    await this.page.waitForLoadState('networkidle');
-  }
-
-  getRowByText(text: string): Locator {
-    return this.tableRows.filter({ hasText: text });
-  }
-
-  async clickEditInRow(rowText: string): Promise<void> {
-    const row = this.getRowByText(rowText);
-    await row.locator('.bi-pencil-fill').click();
-  }
-
-  async getRowCount(): Promise<number> {
-    return await this.tableRows.count();
-  }
-
   async verifyTableLoaded(): Promise<void> {
     await expect(this.tableBody).toBeVisible({ timeout: 15000 });
-    const count = await this.getRowCount();
-    expect(count).toBeGreaterThan(0);
-  }
-
-  async verifySuccess(): Promise<void> {
-    await expect(this.successToast).toBeVisible();
+    expect(await this.tableRows.count()).toBeGreaterThan(0);
   }
 }

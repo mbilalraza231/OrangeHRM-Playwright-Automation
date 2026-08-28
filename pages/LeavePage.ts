@@ -7,9 +7,6 @@ export class LeavePage {
   readonly tableBody: Locator;
   readonly tableRows: Locator;
   readonly searchButton: Locator;
-  readonly resetButton: Locator;
-  readonly applyButton: Locator;
-  readonly leaveTypeDropdown: Locator;
   readonly employeeNameInput: Locator;
   readonly fromDateInput: Locator;
   readonly toDateInput: Locator;
@@ -22,9 +19,6 @@ export class LeavePage {
     this.tableBody         = page.locator('.oxd-table-body');
     this.tableRows         = page.locator('.oxd-table-body .oxd-table-row');
     this.searchButton      = page.getByRole('button', { name: 'Search' });
-    this.resetButton       = page.getByRole('button', { name: 'Reset' });
-    this.applyButton       = page.locator('button[type="submit"], button:has-text("Apply")').first();
-    this.leaveTypeDropdown = page.locator('.oxd-select-text').first();
     this.employeeNameInput = page.locator('.oxd-input-group', { hasText: 'Employee Name' }).getByPlaceholder('Type for hints...');
     this.fromDateInput     = page.locator('.oxd-input-group', { hasText: 'From Date' }).locator('input');
     this.toDateInput       = page.locator('.oxd-input-group', { hasText: 'To Date' }).locator('input');
