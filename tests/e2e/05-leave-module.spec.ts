@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 import type { Page, BrowserContext } from '@playwright/test';
 import { LeavePage } from '../../pages/LeavePage';
 import type { EmployeeData } from '../../utils/test-data-generator';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 /**
  * 05-leave-module.spec.ts — Verifies the Leave module:

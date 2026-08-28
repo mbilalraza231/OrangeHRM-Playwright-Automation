@@ -1,5 +1,5 @@
 import { test as setup, expect } from '@playwright/test';
-import path from 'path';
+import path from 'node:path';
 
 /**
  * auth.setup.ts — Runs once before the test suite.

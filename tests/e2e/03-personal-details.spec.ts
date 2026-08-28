@@ -1,7 +1,7 @@
 import { test, expect } from '../../fixtures/test-fixtures';
 import type { EmployeeData } from '../../utils/test-data-generator';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 /**
  * 03-personal-details.spec.ts — Fills and saves Personal Details (Nationality, Marital Status, Gender)

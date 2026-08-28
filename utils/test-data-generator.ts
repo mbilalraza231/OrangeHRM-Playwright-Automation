@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto';
 import { uniqueSuffix } from './helpers';
 
 export interface EmployeeData {
@@ -20,7 +21,7 @@ export function generateEmployee(): EmployeeData {
   const middleNames = ['Ali', 'Raza', 'Hassan', 'Iqbal'];
   const lastNames   = ['Khan', 'Ahmed', 'Siddiqui', 'Shah', 'Malik', 'Butt'];
 
-  const randSelect = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+  const randSelect = <T>(arr: T[]): T => arr[randomInt(arr.length)];
 
   return {
     firstName:           `${randSelect(firstNames)}${suffix}`,
