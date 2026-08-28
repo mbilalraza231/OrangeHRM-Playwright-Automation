@@ -27,21 +27,18 @@ export class LeavePage {
   }
 
   async navigateToList(): Promise<void> {
-    await this.page.goto('/web/index.php/leave/viewLeaveList', { waitUntil: 'domcontentloaded' });
-    await expect(this.page).toHaveURL(/viewLeaveList/);
-    await this.leaveListHeading.waitFor({ state: 'visible', timeout: 15000 });
+    await this.page.goto('/web/index.php/leave/viewLeaveList', { waitUntil: 'commit' });
+    await expect(this.leaveListHeading).toBeVisible();
   }
 
   async navigateToApply(): Promise<void> {
-    await this.page.goto('/web/index.php/leave/applyLeave', { waitUntil: 'domcontentloaded' });
-    await expect(this.page).toHaveURL(/applyLeave/);
-    await this.page.getByRole('heading', { name: 'Apply Leave' }).waitFor({ state: 'visible', timeout: 15000 });
+    await this.page.goto('/web/index.php/leave/applyLeave', { waitUntil: 'commit' });
+    await expect(this.page.getByRole('heading', { name: 'Apply Leave' })).toBeVisible();
   }
 
   async navigateToAssign(): Promise<void> {
-    await this.page.goto('/web/index.php/leave/assignLeave', { waitUntil: 'domcontentloaded' });
-    await expect(this.page).toHaveURL(/assignLeave/);
-    await this.employeeNameInput.waitFor({ state: 'visible', timeout: 15000 });
+    await this.page.goto('/web/index.php/leave/assignLeave', { waitUntil: 'commit' });
+    await expect(this.employeeNameInput).toBeVisible();
   }
 
   async assignLeave(

@@ -17,8 +17,8 @@ export class DashboardPage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/web/index.php/dashboard/index', { waitUntil: 'domcontentloaded' });
-    await this.heading.waitFor({ state: 'visible', timeout: 15000 });
+    await this.page.goto('/web/index.php/dashboard/index', { waitUntil: 'commit' });
+    await expect(this.heading).toBeVisible();
   }
 
   async verifyDashboard(): Promise<void> {

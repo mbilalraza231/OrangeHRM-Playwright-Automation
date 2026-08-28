@@ -21,8 +21,8 @@ export class LoginPage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/web/index.php/auth/login', { waitUntil: 'domcontentloaded' });
-    await this.loginHeading.waitFor({ state: 'visible', timeout: 15000 });
+    await this.page.goto('/web/index.php/auth/login', { waitUntil: 'commit' });
+    await expect(this.loginHeading).toBeVisible();
   }
 
   async login(username: string, password: string): Promise<void> {

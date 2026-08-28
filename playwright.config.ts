@@ -25,6 +25,10 @@ export default defineConfig({
   reporter: 'html',
   /* Global timeout per test */
   timeout: 60000,
+  /* Timeout for each assertion like expect().toBeVisible() */
+  expect: {
+    timeout: 15000,
+  },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL — all page.goto('/path') calls resolve against this */
