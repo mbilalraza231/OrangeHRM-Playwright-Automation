@@ -29,11 +29,6 @@ export function today(): string {
   return formatDate(new Date());
 }
 
-/**
- * Pauses for a given number of milliseconds.
- * NOTE: Only use this as a last resort — prefer Playwright's
- * built-in automatic waiting via expect() and locators.
- */
 export async function pause(ms: number): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, ms));
 }
